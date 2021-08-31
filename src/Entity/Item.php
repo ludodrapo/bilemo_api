@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
+use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ItemRepository;
 
 /**
+ * Class Item
+ * @package App\Entity
  * @ORM\Entity(repositoryClass=ItemRepository::class)
  */
 class Item
@@ -43,12 +46,6 @@ class Item
     private ?string $screenSize = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @var string|null
-     */
-    private ?string $OS = null;
-
-    /**
      * @ORM\Column(type="integer", nullable=true)
      */
     private ?int $internalMemory = null;
@@ -58,12 +55,6 @@ class Item
      * @var string|null
      */
     private ?string $color = null;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @var string|null
-     */
-    private ?string $wirelessTech = null;
 
     /**
      * @ORM\Column(type="boolean")
@@ -76,6 +67,14 @@ class Item
      * @var \DateTimeInterface|null
      */
     private ?\DateTimeInterface $createdAt = null;
+
+    /**
+     * Item constructor.
+     */
+    public function __construct()
+    {
+        $this->createdAt = new DateTimeImmutable();
+    }
 
     /**
      * @return integer|null
@@ -162,25 +161,6 @@ class Item
     }
 
     /**
-     * @return string|null
-     */
-    public function getOS(): ?string
-    {
-        return $this->OS;
-    }
-
-    /**
-     * @param string $OS
-     * @return self
-     */
-    public function setOS(string $OS): self
-    {
-        $this->OS = $OS;
-
-        return $this;
-    }
-
-    /**
      * @return integer|null
      */
     public function getInternalMemory(): ?int
@@ -215,25 +195,6 @@ class Item
     }
 
     /**
-     * @return string|null
-     */
-    public function getWirelessTech(): ?string
-    {
-        return $this->wirelessTech;
-    }
-
-    /**
-     * @param string|null $wirelessTech
-     * @return self
-     */
-    public function setWirelessTech(?string $wirelessTech): self
-    {
-        $this->wirelessTech = $wirelessTech;
-
-        return $this;
-    }
-
-    /**
      * @return boolean|null
      */
     public function getWaterResistant(): ?bool
@@ -253,18 +214,18 @@ class Item
     }
 
     /**
-     * @return \DateTimeImmutable|null
+     * @return DateTimeImmutable|null
      */
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
     /**
-     * @param \DateTimeImmutable $createdAt
+     * @param DateTimeImmutable $createdAt
      * @return self
      */
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 

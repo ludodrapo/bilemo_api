@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Client;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 
@@ -44,6 +45,14 @@ class User
      * @var Client
      */
     private $client;
+
+    /**
+     * User constructor.
+     */
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     /**
      * @return integer|null
