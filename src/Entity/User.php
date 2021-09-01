@@ -5,11 +5,13 @@ namespace App\Entity;
 use App\Entity\Client;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Class User
  * @package App\Entity
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @Serializer\ExclusionPolicy("ALL")
  */
 class User
 {
@@ -24,12 +26,14 @@ class User
     /**
      * @ORM\Column(type="string", length=255)
      * @var string|null
+     * @Serializer\Expose
      */
     private ?string $name = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @var string|null
+     * @Serializer\Expose
      */
     private ?string $email = null;
 
