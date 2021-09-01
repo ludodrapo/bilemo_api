@@ -109,7 +109,7 @@ class AppFixtures extends Fixture
                     ->setColor($colors[array_rand($colors)])
                     ->setInternalMemory($internalMemories[array_rand($internalMemories)])
                     ->setScreenSize($screenSizes[array_rand($screenSizes)])
-                    ->setWaterResistant(true)
+                    ->setWaterResistant((bool) random_int(0, 1))
             );
         }
 

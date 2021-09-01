@@ -5,6 +5,7 @@ namespace App\Entity;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use App\Repository\ItemRepository;
 
 /**
@@ -18,53 +19,62 @@ class Item
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Serializer\Groups({"list", "show"})
      */
     private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Groups({"list", "show"})
      * @var string|null
      */
     private ?string $brand = null;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Groups({"list", "show"})
      * @var string|null
      */
     private ?string $model = null;
 
     /**
      * @ORM\Column(type="integer")
+     * @Serializer\Groups({"list", "show"})
      * @var integer|null
      */
     private ?int $price = null;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Serializer\Groups({"show"})
      * @var string|null
      */
     private ?string $screenSize = null;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Serializer\Groups({"show"})
      */
     private ?int $internalMemory = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Serializer\Groups({"show"})
      * @var string|null
      */
     private ?string $color = null;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Serializer\Groups({"show"})
      * @var boolean|null
      */
     private ?bool $waterResistant = false;
 
     /**
      * @ORM\Column(type="datetime_immutable")
-     * @var \DateTimeInterface|null
+     * @Serializer\Groups({"show"})
+     * @var \DateTimeImmutable|null
      */
     private ?\DateTimeInterface $createdAt = null;
 
