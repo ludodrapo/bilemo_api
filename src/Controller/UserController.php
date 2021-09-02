@@ -6,12 +6,12 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use JMS\Serializer\SerializerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Class UserController
@@ -25,6 +25,8 @@ class UserController extends AbstractFOSRestController
      * @Rest\View(
      *     statusCode = 200
      * )
+     * @param UserRepository $userRepository
+     * @return Response
      */
     public function listAction(UserRepository $userRepository)
     {
@@ -37,6 +39,7 @@ class UserController extends AbstractFOSRestController
      * @Rest\View(
      *     statusCode = 200
      * )
+     * @return Response
      */
     public function showAction(User $user)
     {
@@ -54,13 +57,20 @@ class UserController extends AbstractFOSRestController
      * )
      * @param User $user
      * @param EntityManagerInterface $em
-     * @return void
+     * @param ConstraintViolationList $violations
+     * @return Response
      */
     public function createAction(
         User $user,
         EntityManagerInterface $em,
-        ClientRepository $clientRepository
+        ClientRepository $clientRepository,
+        ConstraintViolationList $violations
     ) {
+
+        if (count($violations)) {
+            return $this->view($violations, Response::HTTP_BAD_REQUEST);
+        }
+
         $em->persist(
             $user
                 ->setClient($clientRepository->findOneBy([]))
@@ -78,7 +88,7 @@ class UserController extends AbstractFOSRestController
      * )
      * @param User $user
      * @param EntityManagerInterface $em
-     * @return void
+     * @return Response
      */
     public function deleteAction(User $user, EntityManagerInterface $em)
     {

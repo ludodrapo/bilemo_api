@@ -16,8 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @UniqueEntity(
  *     fields={"email"}, 
- *     message="This email already exists.",
- *     groups={"create"}
+ *     message="This email already exists."
  * )
  * @Serializer\ExclusionPolicy("ALL")
  */
@@ -34,14 +33,9 @@ class User
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(
-     *     message="The user name cannot be empty.",
-     *     groups={"create"}
-     * )
      * @Assert\Length(
      *     min=3,
-     *     minMessage="The user name must contain at least {{ value }} characters.",
-     *     groups={"create"}
+     *     minMessage="The user name must contain at least {{ limit }} characters."
      * )
      * @var string|null
      * @Serializer\Expose
@@ -51,12 +45,10 @@ class User
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(
-     *     message="The user email cannot be empty.",
-     *     groups={"create"}
+     *     message="The user email cannot be empty."
      * )
      * @Assert\Email(
-     *     message="{{ value }} is not a valid email address.",
-     *     groups={"create"}
+     *     message="{{ value }} is not a valid email address."
      * )
      * @var string|null
      * @Serializer\Expose
