@@ -6,19 +6,11 @@ use App\Entity\Client;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use JMS\Serializer\Annotation as Serializer;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
-
 
 /**
  * Class User
  * @package App\Entity
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @UniqueEntity(
- *     fields={"email"}, 
- *     message="This email already exists.",
- *     groups={"create"}
- * )
  * @Serializer\ExclusionPolicy("ALL")
  */
 class User
@@ -27,22 +19,12 @@ class User
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Serializer\Expose
      * @var integer|null
      */
     private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(
-     *     message="The user name cannot be empty.",
-     *     groups={"create"}
-     * )
-     * @Assert\Length(
-     *     min=3,
-     *     minMessage="The user name must contain at least {{ value }} characters.",
-     *     groups={"create"}
-     * )
      * @var string|null
      * @Serializer\Expose
      */
@@ -50,14 +32,6 @@ class User
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(
-     *     message="The user email cannot be empty.",
-     *     groups={"create"}
-     * )
-     * @Assert\Email(
-     *     message="{{ value }} is not a valid email address.",
-     *     groups={"create"}
-     * )
      * @var string|null
      * @Serializer\Expose
      */
