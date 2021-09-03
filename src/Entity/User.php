@@ -35,7 +35,7 @@ class User
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *     min=3,
-     *     minMessage="The user name must contain at least {{ limit }} characters."
+     *     minMessage="The user's name must contain at least {{ limit }} characters."
      * )
      * @var string|null
      * @Serializer\Expose
@@ -45,10 +45,10 @@ class User
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(
-     *     message="The user email cannot be empty."
+     *     message="The user's email cannot be empty."
      * )
      * @Assert\Email(
-     *     message="{{ value }} is not a valid email address."
+     *     message="The provided email address is not valid."
      * )
      * @var string|null
      * @Serializer\Expose

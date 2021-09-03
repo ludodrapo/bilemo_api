@@ -3,15 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use PhpParser\Node\Stmt\TryCatch;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class UserController
@@ -35,7 +38,11 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Get("/{id}", name="api_users_show_one", requirements= {"id"="\d+"})
+     * @Rest\Get(
+     *     "/{id}", 
+     *     name="api_users_show_one", 
+     *     requirements= {"id"="\d+"}
+     * )
      * @Rest\View(
      *     statusCode = 200
      * )
@@ -68,7 +75,16 @@ class UserController extends AbstractFOSRestController
     ) {
 
         if (count($violations)) {
-            return $this->view($violations, Response::HTTP_BAD_REQUEST);
+            $data = ['The sent JSON contains invalid data:'];
+            foreach ($violations as $violation) {
+                $violationData = sprintf(
+                    "Field '%s': '%s'",
+                    $violation->getPropertyPath(),
+                    $violation->getMessage()
+                );
+                $data[] = $violationData;
+            }
+            return $this->view($data, Response::HTTP_BAD_REQUEST);
         }
 
         $em->persist(
@@ -78,7 +94,17 @@ class UserController extends AbstractFOSRestController
         );
         $em->flush();
 
-        return $user;
+        return $this->view(
+            $user,
+            Response::HTTP_CREATED,
+            [
+                'location' => $this->generateUrl(
+                    'api_users_show_one',
+                    ['id' => $user->getId()],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                )
+            ]
+        );
     }
 
     /**
