@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use PhpParser\Node\Stmt\TryCatch;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,10 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class UserController
@@ -59,7 +56,7 @@ class UserController extends AbstractFOSRestController
         if ($user->getClient() !== $this->getUser()) {
             return $this->view(
                 'You cannot access a user from another organization',
-                Response::HTTP_UNAUTHORIZED
+                Response::HTTP_FORBIDDEN
             );
         }
         return $user;
@@ -133,7 +130,7 @@ class UserController extends AbstractFOSRestController
         if ($user->getClient() !== $this->getUser()) {
             return $this->view(
                 'You cannot delete a user from another organization',
-                Response::HTTP_UNAUTHORIZED
+                Response::HTTP_FORBIDDEN
             );
         }
         $em->remove($user);
