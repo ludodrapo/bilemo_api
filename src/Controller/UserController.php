@@ -33,7 +33,13 @@ class UserController extends AbstractFOSRestController
      */
     public function listAction(UserRepository $userRepository)
     {
-        $users = $userRepository->findAll();
+        $client = $this->getUser();
+        $users = $userRepository->findBy(
+            [
+                'client' => $client->getId()
+            ]
+        );
+
         return $users;
     }
 
@@ -50,6 +56,12 @@ class UserController extends AbstractFOSRestController
      */
     public function showAction(User $user)
     {
+        if ($user->getClient() !== $this->getUser()) {
+            return $this->view(
+                'You cannot access a user from another organization',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
         return $user;
     }
 
@@ -89,7 +101,7 @@ class UserController extends AbstractFOSRestController
 
         $em->persist(
             $user
-                ->setClient($clientRepository->findOneBy([]))
+                ->setClient($this->getUser())
                 ->setCreatedAt(new \DateTimeImmutable())
         );
         $em->flush();
@@ -118,6 +130,12 @@ class UserController extends AbstractFOSRestController
      */
     public function deleteAction(User $user, EntityManagerInterface $em)
     {
+        if ($user->getClient() !== $this->getUser()) {
+            return $this->view(
+                'You cannot delete a user from another organization',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
         $em->remove($user);
         $em->flush();
 
