@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use PhpParser\Node\Stmt\TryCatch;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,10 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class UserController
@@ -33,7 +30,13 @@ class UserController extends AbstractFOSRestController
      */
     public function listAction(UserRepository $userRepository)
     {
-        $users = $userRepository->findAll();
+        $client = $this->getUser();
+        $users = $userRepository->findBy(
+            [
+                'client' => $client->getId()
+            ]
+        );
+
         return $users;
     }
 
@@ -50,6 +53,12 @@ class UserController extends AbstractFOSRestController
      */
     public function showAction(User $user)
     {
+        if ($user->getClient() !== $this->getUser()) {
+            return $this->view(
+                'You cannot access a user from another organization',
+                Response::HTTP_FORBIDDEN
+            );
+        }
         return $user;
     }
 
@@ -89,7 +98,7 @@ class UserController extends AbstractFOSRestController
 
         $em->persist(
             $user
-                ->setClient($clientRepository->findOneBy([]))
+                ->setClient($this->getUser())
                 ->setCreatedAt(new \DateTimeImmutable())
         );
         $em->flush();
@@ -118,6 +127,12 @@ class UserController extends AbstractFOSRestController
      */
     public function deleteAction(User $user, EntityManagerInterface $em)
     {
+        if ($user->getClient() !== $this->getUser()) {
+            return $this->view(
+                'You cannot delete a user from another organization',
+                Response::HTTP_FORBIDDEN
+            );
+        }
         $em->remove($user);
         $em->flush();
 
