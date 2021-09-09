@@ -6,8 +6,11 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Representation\UsersListPaginator;
 use Symfony\Component\HttpFoundation\Response;
+use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -22,22 +25,38 @@ class UserController extends AbstractFOSRestController
 {
     /**
      * @Rest\Get(name="api_users_list")
+     * @Rest\QueryParam(
+     *     name="page",
+     *     requirements="\d+",
+     *     default=1,
+     *     description="Page where to start"
+     * )
+     * @Rest\QueryParam(
+     *     name="limit",
+     *     requirements="\d+",
+     *     default=5,
+     *     description="Number of items per page"
+     * )
      * @Rest\View(
      *     statusCode = 200
      * )
-     * @param UserRepository $userRepository
-     * @return Response
+     * @param ClientRepository $clientRepository
+     * @param ParamFetcherInterface $paramFetcher
+     * @param UsersListPaginator $paginator
      */
-    public function listAction(UserRepository $userRepository)
-    {
-        $client = $this->getUser();
-        $users = $userRepository->findBy(
-            [
-                'client' => $client->getId()
-            ]
+    public function listAction(
+        ClientRepository $clientRepository,
+        ParamFetcherInterface $paramFetcher,
+        UsersListPaginator $paginator
+    ) {
+        $client = $clientRepository->find(
+            $this->getUser()->getId()
         );
+        $page = $paramFetcher->get('page');
+        $limit = $paramFetcher->get('limit');
 
-        return $users;
+        $paginatedUsersList = $paginator->getPaginatedList($client, $page, $limit);
+        return $paginatedUsersList;
     }
 
     /**
@@ -79,7 +98,6 @@ class UserController extends AbstractFOSRestController
     public function createAction(
         User $user,
         EntityManagerInterface $em,
-        ClientRepository $clientRepository,
         ConstraintViolationList $violations
     ) {
 
@@ -95,6 +113,8 @@ class UserController extends AbstractFOSRestController
             }
             return $this->view($data, Response::HTTP_BAD_REQUEST);
         }
+
+        dd($user);
 
         $em->persist(
             $user
