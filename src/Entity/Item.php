@@ -7,11 +7,20 @@ use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use App\Repository\ItemRepository;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * Class Item
  * @package App\Entity
  * @ORM\Entity(repositoryClass=ItemRepository::class)
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "api_items_show_one",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     )
+ * )
  */
 class Item
 {
@@ -73,7 +82,7 @@ class Item
 
     /**
      * @ORM\Column(type="datetime_immutable")
-     * @Serializer\Groups({"show"})
+     * @Serializer\Exclude
      * @var \DateTimeImmutable|null
      */
     private ?\DateTimeInterface $createdAt = null;

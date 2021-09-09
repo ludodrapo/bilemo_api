@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 
 /**
@@ -19,6 +20,22 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     message="This email already exists."
  * )
  * @Serializer\ExclusionPolicy("ALL")
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "api_users_show_one",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "delete",
+ *     href = @Hateoas\Route(
+ *         "api_users_delete_one",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     )
+ * )
  */
 class User
 {
