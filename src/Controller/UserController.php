@@ -15,6 +15,9 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 /**
  * Class UserController
@@ -25,21 +28,36 @@ class UserController extends AbstractFOSRestController
 {
     /**
      * @Rest\Get(name="api_users_list")
+     * 
      * @Rest\QueryParam(
      *     name="page",
      *     requirements="\d+",
      *     default=1,
      *     description="Page where to start"
      * )
+     * 
      * @Rest\QueryParam(
      *     name="limit",
      *     requirements="\d+",
      *     default=5,
-     *     description="Number of items per page"
+     *     description="Number of users per page"
      * )
+     * 
      * @Rest\View(
-     *     statusCode = 200
+     *     statusCode=200
      * )
+     * 
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns a paginated users list.",
+     *     @OA\JsonContent(
+     *         type="array",
+     *         @OA\Items(
+     *             ref=@Model(type=User::class)
+     *         )
+     *     )
+     * )
+     * 
      * @param ClientRepository $clientRepository
      * @param ParamFetcherInterface $paramFetcher
      * @param UsersListPaginator $paginator
@@ -67,6 +85,18 @@ class UserController extends AbstractFOSRestController
      * )
      * @Rest\View(
      *     statusCode = 200
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns one user's details.",
+     *     @OA\JsonContent(
+     *         type="array",
+     *         @OA\Items(
+     *             ref=@Model(
+     *                 type=User::class
+     *             )
+     *         )
+     *     )
      * )
      * @return Response
      */

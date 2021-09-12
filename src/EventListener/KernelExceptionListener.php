@@ -14,7 +14,7 @@ class KernelExceptionListener
         $exception = $event->getThrowable();
 
         $message = sprintf(
-            'An error occured:' . $exception->getMessage()
+            'An error occured: ' . $exception->getMessage()
         );
 
         $response = new JsonResponse($message);

@@ -19,7 +19,8 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *         "api_items_show_one",
  *         parameters = { "id" = "expr(object.getId())" },
  *         absolute = true
- *     )
+ *     ),
+ *     exclusion = @Hateoas\Exclusion(groups={"list"})
  * )
  */
 class Item
