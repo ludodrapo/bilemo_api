@@ -21,7 +21,7 @@ class KernelExceptionListener
 
         if ($exception instanceof HttpExceptionInterface) {
             if ($exception->getStatusCode() == 404) {
-                $notFoundMessage = 'The informations you asked for do not exist (at least not anymore).';
+                $notFoundMessage = 'The resource(s) you asked for do(es) not exist (at least not anymore).';
                 $response->setContent($notFoundMessage);
             }
             $response->setStatusCode($exception->getStatusCode());

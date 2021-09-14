@@ -1,7 +1,7 @@
 nelmio_api_doc:
     documentation:
         info:
-            title: Bilemo.com
+            title: BileMo.com
             description: Find the right phone, cause your company worth it !
             version: 1.0.0
     areas: # to filter documented areas

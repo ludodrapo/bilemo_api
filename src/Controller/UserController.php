@@ -46,14 +46,88 @@ class UserController extends AbstractFOSRestController
      * @Rest\View(
      *     statusCode=200
      * )
-     * 
+     * @OA\Get(
+     *     tags={"Users"}
+     * )
      * @OA\Response(
      *     response=200,
      *     description="Returns a paginated users list.",
-     *     @OA\JsonContent(
-     *         type="array",
-     *         @OA\Items(
-     *             ref=@Model(type=User::class)
+     *     @OA\MediaType(
+     *         mediaType="application/json",
+     *         @OA\Schema(
+     *             @OA\Property(
+     *                 property="page",
+     *                 type="integer",
+     *                 example="1"
+     *             ),
+     *             @OA\Property(
+     *                 property="limit",
+     *                 type="integer",
+     *                 example="5"
+     *             ),
+     *             @OA\Property(
+     *                 property="pages",
+     *                 type="integer",
+     *                 example="11"
+     *             ),
+     *             @OA\Property(
+     *                 property="total",
+     *                 type="integer",
+     *                 example="54"
+     *             ),
+     *             @OA\Property(
+     *                 property="_links",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="self",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="href",
+     *                         type="string",
+     *                         example="https://localhost:8000/api/users?page=1&limit=5"
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="first",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="href",
+     *                         type="string",
+     *                         example="https://localhost:8000/api/users?page=1&limit=5"
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="last",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="href",
+     *                         type="string",
+     *                         example="https://localhost:8000/api/users?page=1&limit=5"
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="next",
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="href",
+     *                         type="string",
+     *                         example="https://localhost:8000/api/users?page=1&limit=5"
+     *                     )
+     *                 ),
+     *             ),
+     *             @OA\Property(
+     *                 property="_embedded",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="items",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         ref=@Model(
+     *                             type=User::class
+     *                         )
+     *                     )
+     *                 )
+     *             )
      *         )
      *     )
      * )
@@ -86,16 +160,39 @@ class UserController extends AbstractFOSRestController
      * @Rest\View(
      *     statusCode = 200
      * )
+     * @OA\Get(
+     *     tags={"Users"}
+     * )
+     * @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="Resource's ID",
+     *     required=true,
+     *     @OA\Schema(type="integer")
+     * )
      * @OA\Response(
      *     response=200,
      *     description="Returns one user's details.",
      *     @OA\JsonContent(
-     *         type="array",
-     *         @OA\Items(
-     *             ref=@Model(
-     *                 type=User::class
-     *             )
+     *         ref=@Model(
+     *             type=User::class
      *         )
+     *     )
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="Occurs when the user's id does not exist.",
+     *     @OA\MediaType(
+     *         mediaType="text/html",
+     *         example="The resource(s) you asked for do(es) not exist (at least not anymore)."
+     *     )
+     * )
+     * @OA\Response(
+     *     response=403,
+     *     description="Occurs when trying to access a user that is not associated with the current logged in client.",
+     *     @OA\JsonContent(
+     *         type="string",
+     *         example="You cannot access a user from another organization"
      *     )
      * )
      * @return Response
@@ -113,13 +210,34 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Post(name="api_users_create_one")
-     * @Rest\View(
-     *     statusCode = 201
-     * )
      * @ParamConverter(
      *     "user",
      *     converter="fos_rest.request_body"
      * )
+     * @OA\Post(
+     *     tags={"Users"}
+     * )
+     * @OA\RequestBody(
+     *     @OA\MediaType(
+     *         mediaType="application/json",
+     *         @OA\Schema(
+     *             @OA\Property(
+     *                 property="name",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="email",
+     *                 type="string"
+     *             ),
+     *             example={"name": "Jessica Smith", "email": "jessica.smith@gmail.com"}
+     *         )
+     *     )
+     * )
+     * @OA\Response(
+     *     response=204,
+     *     description="User created and stored in the database."
+     * )
+     * 
      * @param User $user
      * @param EntityManagerInterface $em
      * @param ConstraintViolationList $violations
@@ -144,8 +262,6 @@ class UserController extends AbstractFOSRestController
             return $this->view($data, Response::HTTP_BAD_REQUEST);
         }
 
-        dd($user);
-
         $em->persist(
             $user
                 ->setClient($this->getUser())
@@ -154,8 +270,8 @@ class UserController extends AbstractFOSRestController
         $em->flush();
 
         return $this->view(
-            $user,
-            Response::HTTP_CREATED,
+            null,
+            Response::HTTP_NO_CONTENT,
             [
                 'location' => $this->generateUrl(
                     'api_users_show_one',
@@ -170,6 +286,21 @@ class UserController extends AbstractFOSRestController
      * @Rest\Delete("/{id}", name="api_users_delete_one")
      * @Rest\View(
      *     statusCode = 204
+     * )
+     * @OA\Delete(
+     *     tags={"Users"}
+     * )
+     * @OA\Response(
+     *     response=204,
+     *     description="When user's deletion succeeded."
+     * )
+     * @OA\Response(
+     *     response=403,
+     *     description="Occurs when trying to delete a user that is not associated with the current logged in client.",
+     *     @OA\JsonContent(
+     *         type="string",
+     *         example="You cannot delete a user from another organization"
+     *     )
      * )
      * @param User $user
      * @param EntityManagerInterface $em
