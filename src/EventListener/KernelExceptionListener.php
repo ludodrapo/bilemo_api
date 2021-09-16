@@ -14,14 +14,14 @@ class KernelExceptionListener
         $exception = $event->getThrowable();
 
         $message = sprintf(
-            'An error occured:' . $exception->getMessage()
+            'An error occured: ' . $exception->getMessage()
         );
 
         $response = new JsonResponse($message);
 
         if ($exception instanceof HttpExceptionInterface) {
             if ($exception->getStatusCode() == 404) {
-                $notFoundMessage = 'The informations you asked for do not exist (at least not anymore).';
+                $notFoundMessage = 'The resource(s) you asked for do(es) not exist (at least not anymore).';
                 $response->setContent($notFoundMessage);
             }
             $response->setStatusCode($exception->getStatusCode());
