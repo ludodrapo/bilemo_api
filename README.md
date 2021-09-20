@@ -14,7 +14,7 @@ You'll have to create a ".env.local" file with the access to your database serve
 DATABASE_URL="mysql:/db_/user:db_password@127.0.0.1:8889/db_name?serverVersion=5.7"
 ###> doctrine/doctrine-bundle ###
 ```
-then run
+Then run
 ```
 % composer install
 ```
