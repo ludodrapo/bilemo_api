@@ -8,7 +8,7 @@ API Rest coded by Ludo Drapo with Symfony 5.3, PHP 7.4.20 and MySql 5.7
 
 To "try it at home", you can download these files, or clone this repository.
 
-You'll have to configure your .env.local with the access to your database server like this
+You'll have to create a ".env.local" file with the access to your database server like this
 ```
 ###> doctrine/doctrine-bundle ###
 DATABASE_URL="mysql:/db_/user:db_password@127.0.0.1:8889/db_name?serverVersion=5.7"
@@ -18,14 +18,21 @@ then run
 ```
 % composer install
 ```
-And after that, to create the database and load the fixtures, just run
+After that, to create the database and load the fixtures, just run
 ```
 % composer prepare
 ```
-Finaly, you will have to configure your lexik/JWT-authentication-bundle  in your env.local too
+Finaly, you will have to configure your lexik/jwt-authentication-bundle by first running
 ```
-###> symfony/mailer ###
-MAILER_DSN= (...)
-###> symfony/mailer ###
+% php bin/console lexik:jwt:generate-keypair
 ```
+And then moving the environment parameters in your .env.local file
+```
+###> lexik/jwt-authentication-bundle ###
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+JWT_PASSPHRASE=your_own_passphrase
+###< lexik/jwt-authentication-bundle ###
+```
+
 To access the documentation (using swagger.ui), go to "/api/doc"
