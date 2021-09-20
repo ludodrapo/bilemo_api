@@ -39,6 +39,9 @@ class ItemsListPaginator
 
         $allItems = $this->itemRepository->findAll();
 
+        $nb_of_items = (int) count($allItems);
+        $nb_of_pages = (int) ceil($nb_of_items) / $limit;
+
         $itemsToDisplay = $this->itemRepository->findBy(
             [],
             null,
@@ -46,8 +49,6 @@ class ItemsListPaginator
             ($page - 1) * $limit
         );
 
-        $nb_of_pages = (int) ceil(count($allItems) / $limit);
-        $nb_of_items = (int) count($allItems);
 
         $collection = new CollectionRepresentation($itemsToDisplay);
 
@@ -63,6 +64,9 @@ class ItemsListPaginator
             true,
             $nb_of_items
         );
+
+        // To test the cache
+        // sleep(2);
 
         return $paginatedList;
     }

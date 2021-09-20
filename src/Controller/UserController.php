@@ -3,21 +3,23 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use OpenApi\Annotations as OA;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use App\Representation\UsersListPaginator;
+use Symfony\Contracts\Cache\ItemInterface;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\Security;
-use OpenApi\Annotations as OA;
 
 /**
  * Class UserController
@@ -47,7 +49,8 @@ class UserController extends AbstractFOSRestController
      *     statusCode=200
      * )
      * @OA\Get(
-     *     tags={"Users"}
+     *     tags={"Users"},
+     *     summary="Returns a paginated list of users"
      * )
      * @OA\Response(
      *     response=200,
@@ -131,15 +134,17 @@ class UserController extends AbstractFOSRestController
      *         )
      *     )
      * )
-     * 
+     *
      * @param ClientRepository $clientRepository
      * @param ParamFetcherInterface $paramFetcher
      * @param UsersListPaginator $paginator
+     * @param TagAwareCacheInterface $cacheInterface
      */
     public function listAction(
         ClientRepository $clientRepository,
         ParamFetcherInterface $paramFetcher,
-        UsersListPaginator $paginator
+        UsersListPaginator $paginator,
+        TagAwareCacheInterface $cacheInterface
     ) {
         $client = $clientRepository->find(
             $this->getUser()->getId()
@@ -147,7 +152,16 @@ class UserController extends AbstractFOSRestController
         $page = $paramFetcher->get('page');
         $limit = $paramFetcher->get('limit');
 
-        $paginatedUsersList = $paginator->getPaginatedList($client, $page, $limit);
+        $paginatedUsersList = $cacheInterface->get(
+            'client_' . $client->getId() . '_users_list_page_' . $page . '_limit_' . $limit,
+            function (ItemInterface $itemInterface) use ($paginator, $client, $page, $limit) {
+                $itemInterface
+                    ->tag('users')
+                    ->expiresAfter(31536000);
+                return $paginator->getPaginatedList($client, $page, $limit);
+            }
+        );
+
         return $paginatedUsersList;
     }
 
@@ -161,7 +175,8 @@ class UserController extends AbstractFOSRestController
      *     statusCode = 200
      * )
      * @OA\Get(
-     *     tags={"Users"}
+     *     tags={"Users"},
+     *     summary="Returns one user's details"
      * )
      * @OA\Parameter(
      *     name="id",
@@ -195,9 +210,11 @@ class UserController extends AbstractFOSRestController
      *         example="You cannot access a user from another organization"
      *     )
      * )
+     * @param User $user
+     * @param TagAwareCacheInterface $cacheInterface
      * @return Response
      */
-    public function showAction(User $user)
+    public function showAction(User $user, TagAwareCacheInterface $cacheInterface)
     {
         if ($user->getClient() !== $this->getUser()) {
             return $this->view(
@@ -205,6 +222,16 @@ class UserController extends AbstractFOSRestController
                 Response::HTTP_FORBIDDEN
             );
         }
+
+        $userToDisplay = $cacheInterface->get(
+            'user' . $user->getId(),
+            function (ItemInterface $itemInterface) use ($user) {
+                $itemInterface->expiresAfter(31536000);
+                return $user;
+            }
+        );
+
+
         return $user;
     }
 
@@ -215,7 +242,8 @@ class UserController extends AbstractFOSRestController
      *     converter="fos_rest.request_body"
      * )
      * @OA\Post(
-     *     tags={"Users"}
+     *     tags={"Users"},
+     *     summary="To create a new user"
      * )
      * @OA\RequestBody(
      *     @OA\MediaType(
@@ -246,7 +274,8 @@ class UserController extends AbstractFOSRestController
     public function createAction(
         User $user,
         EntityManagerInterface $em,
-        ConstraintViolationList $violations
+        ConstraintViolationList $violations,
+        TagAwareCacheInterface $cacheInterface
     ) {
 
         if (count($violations)) {
@@ -269,6 +298,9 @@ class UserController extends AbstractFOSRestController
         );
         $em->flush();
 
+        //To clear users list cache when a new one is recorded
+        $cacheInterface->invalidateTags(['users']);
+
         return $this->view(
             null,
             Response::HTTP_NO_CONTENT,
@@ -288,7 +320,8 @@ class UserController extends AbstractFOSRestController
      *     statusCode = 204
      * )
      * @OA\Delete(
-     *     tags={"Users"}
+     *     tags={"Users"},
+     *     summary="To delete a user"
      * )
      * @OA\Response(
      *     response=204,
@@ -306,8 +339,11 @@ class UserController extends AbstractFOSRestController
      * @param EntityManagerInterface $em
      * @return Response
      */
-    public function deleteAction(User $user, EntityManagerInterface $em)
-    {
+    public function deleteAction(
+        User $user,
+        EntityManagerInterface $em,
+        TagAwareCacheInterface $cacheInterface
+    ) {
         if ($user->getClient() !== $this->getUser()) {
             return $this->view(
                 'You cannot delete a user from another organization',
@@ -316,6 +352,9 @@ class UserController extends AbstractFOSRestController
         }
         $em->remove($user);
         $em->flush();
+
+        //To clear users list cache when a new one is deleted
+        $cacheInterface->invalidateTags(['users']);
 
         return;
     }

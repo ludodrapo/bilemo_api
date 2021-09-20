@@ -11,6 +11,8 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Class ItemController
@@ -19,6 +21,24 @@ use OpenApi\Annotations as OA;
  */
 class ItemController extends AbstractFOSRestController
 {
+    // /**
+    //  * @var ParamFetcherInterface
+    //  */
+    // private $paramFetcher;
+
+    // /**
+    //  * @var ItemsListPaginator
+    //  */
+    // private $paginator;
+
+    // public function __construct(
+    //     ParamFetcherInterface $paramFetcher,
+    //     ItemsListPaginator $paginator
+    // ) {
+    //     $this->paramFetcher = $paramFetcher;
+    //     $this->paginator = $paginator;
+    // }
+
     /**
      * @Rest\Get(name="api_items_list")
      * 
@@ -41,7 +61,8 @@ class ItemController extends AbstractFOSRestController
      *     description="Number of items per page"
      * )
      * @OA\Get(
-     *     tags={"Items"}
+     *     tags={"Items"},
+     *     summary="Returns a paginated list of items"
      * )
      * @OA\Response(
      *     response=200,
@@ -129,12 +150,19 @@ class ItemController extends AbstractFOSRestController
      */
     public function listAction(
         ParamFetcherInterface $paramFetcher,
-        ItemsListPaginator $paginator
+        ItemsListPaginator $paginator,
+        CacheInterface $cache
     ) {
 
-        $paginatedItemsList = $paginator->getPaginatedList(
-            $paramFetcher->get('page'),
-            $paramFetcher->get('limit')
+        $page = $paramFetcher->get('page');
+        $limit = $paramFetcher->get('limit');
+
+        $paginatedItemsList = $cache->get(
+            'items_list_page_' . $page . '_limit_' . $limit,
+            function (ItemInterface $itemInterface) use ($paginator, $page, $limit) {
+                $itemInterface->expiresAfter(31536000);
+                return $paginator->getPaginatedList($page, $limit);
+            }
         );
 
         return $paginatedItemsList;
@@ -148,7 +176,8 @@ class ItemController extends AbstractFOSRestController
      *     serializerGroups = {"show"}
      * )
      * @OA\Get(
-     *     tags={"Items"}
+     *     tags={"Items"},
+     *     summary="Returns a item's details"
      * )
      * @OA\Parameter(
      *     name="id",
@@ -176,8 +205,16 @@ class ItemController extends AbstractFOSRestController
      *     )
      * )
      */
-    public function showAction(Item $item)
+    public function showAction(Item $item, CacheInterface $cache)
     {
-        return $item;
+        $itemToDisplay = $cache->get(
+            'item' . $item->getId(),
+            function (ItemInterface $itemInterface) use ($item) {
+                $itemInterface->expiresAfter(31536000);
+                return $item;
+            }
+        );
+
+        return $itemToDisplay;
     }
 }

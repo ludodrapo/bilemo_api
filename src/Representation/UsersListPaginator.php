@@ -40,13 +40,15 @@ class UsersListPaginator
         ?int $limit = 5
     ): PaginatedRepresentation {
 
-        $totalItems = $this->userRepository->findBy(
+        $allClientUsers = $this->userRepository->findBy(
             [
                 'client' => $client
             ]
         );
+        $nb_of_users = (int) count($allClientUsers);
+        $nb_of_pages = (int) ceil($nb_of_users) / $limit;
 
-        $itemsToDisplay = $this->userRepository->findBy(
+        $usersToDisplay = $this->userRepository->findBy(
             [
                 'client' => $client
             ],
@@ -55,10 +57,8 @@ class UsersListPaginator
             ($page - 1) * $limit
         );
 
-        $nb_of_pages = (int) ceil(count($totalItems) / $limit);
-        $nb_of_items = (int) count($totalItems);
 
-        $collection = new CollectionRepresentation($itemsToDisplay);
+        $collection = new CollectionRepresentation($usersToDisplay);
 
         $paginatedList = new PaginatedRepresentation(
             $collection,
@@ -70,8 +70,11 @@ class UsersListPaginator
             null,
             null,
             true,
-            $nb_of_items
+            $nb_of_users
         );
+
+        //To test the cache
+        // sleep(2);
 
         return $paginatedList;
     }
