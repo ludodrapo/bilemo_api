@@ -2,8 +2,6 @@
   <img src="bilemo_logo_black.png" alt="logo Bilemo" width="300"/>
 </p>
 
-# BileMo.com
-
 Project number 7 from the OpenClassRooms cursus on PHP/Symfony developpement.
 
 API Rest coded by Ludo Drapo with Symfony 5.3, PHP 7.4.20 and MySql 5.7
