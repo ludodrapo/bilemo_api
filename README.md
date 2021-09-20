@@ -35,4 +35,4 @@ JWT_PASSPHRASE=your_own_passphrase
 ###< lexik/jwt-authentication-bundle ###
 ```
 
-To access the documentation (using swagger.ui), go to "/api/doc"
+To access the documentation (using swagger.ui), go to "your-server-address/api/doc"
