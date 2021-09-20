@@ -49,7 +49,8 @@ class UserController extends AbstractFOSRestController
      *     statusCode=200
      * )
      * @OA\Get(
-     *     tags={"Users"}
+     *     tags={"Users"},
+     *     summary="Returns a paginated list of users"
      * )
      * @OA\Response(
      *     response=200,
@@ -154,7 +155,9 @@ class UserController extends AbstractFOSRestController
         $paginatedUsersList = $cacheInterface->get(
             'client_' . $client->getId() . '_users_list_page_' . $page . '_limit_' . $limit,
             function (ItemInterface $itemInterface) use ($paginator, $client, $page, $limit) {
-                $itemInterface->tag('users');
+                $itemInterface
+                    ->tag('users')
+                    ->expiresAfter(31536000);
                 return $paginator->getPaginatedList($client, $page, $limit);
             }
         );
@@ -172,7 +175,8 @@ class UserController extends AbstractFOSRestController
      *     statusCode = 200
      * )
      * @OA\Get(
-     *     tags={"Users"}
+     *     tags={"Users"},
+     *     summary="Returns one user's details"
      * )
      * @OA\Parameter(
      *     name="id",
@@ -222,7 +226,7 @@ class UserController extends AbstractFOSRestController
         $userToDisplay = $cacheInterface->get(
             'user' . $user->getId(),
             function (ItemInterface $itemInterface) use ($user) {
-                $itemInterface->expiresAfter(20);
+                $itemInterface->expiresAfter(31536000);
                 return $user;
             }
         );
@@ -238,7 +242,8 @@ class UserController extends AbstractFOSRestController
      *     converter="fos_rest.request_body"
      * )
      * @OA\Post(
-     *     tags={"Users"}
+     *     tags={"Users"},
+     *     summary="To create a new user"
      * )
      * @OA\RequestBody(
      *     @OA\MediaType(
@@ -315,7 +320,8 @@ class UserController extends AbstractFOSRestController
      *     statusCode = 204
      * )
      * @OA\Delete(
-     *     tags={"Users"}
+     *     tags={"Users"},
+     *     summary="To delete a user"
      * )
      * @OA\Response(
      *     response=204,

@@ -61,7 +61,8 @@ class ItemController extends AbstractFOSRestController
      *     description="Number of items per page"
      * )
      * @OA\Get(
-     *     tags={"Items"}
+     *     tags={"Items"},
+     *     summary="Returns a paginated list of items"
      * )
      * @OA\Response(
      *     response=200,
@@ -159,7 +160,7 @@ class ItemController extends AbstractFOSRestController
         $paginatedItemsList = $cache->get(
             'items_list_page_' . $page . '_limit_' . $limit,
             function (ItemInterface $itemInterface) use ($paginator, $page, $limit) {
-                $itemInterface->expiresAfter(20);
+                $itemInterface->expiresAfter(31536000);
                 return $paginator->getPaginatedList($page, $limit);
             }
         );
@@ -175,7 +176,8 @@ class ItemController extends AbstractFOSRestController
      *     serializerGroups = {"show"}
      * )
      * @OA\Get(
-     *     tags={"Items"}
+     *     tags={"Items"},
+     *     summary="Returns a item's details"
      * )
      * @OA\Parameter(
      *     name="id",
@@ -208,7 +210,7 @@ class ItemController extends AbstractFOSRestController
         $itemToDisplay = $cache->get(
             'item' . $item->getId(),
             function (ItemInterface $itemInterface) use ($item) {
-                $itemInterface->expiresAfter(20);
+                $itemInterface->expiresAfter(31536000);
                 return $item;
             }
         );

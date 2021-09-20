@@ -73,7 +73,8 @@ class UsersListPaginator
             $nb_of_users
         );
 
-        sleep(2);
+        //To test the cache
+        // sleep(2);
 
         return $paginatedList;
     }
