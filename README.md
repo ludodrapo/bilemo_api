@@ -2,6 +2,8 @@
   <img src="bilemo_logo_black.png" alt="logo Bilemo" width="300"/>
 </p>
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/a471ebf0b475e2d7414d/maintainability)](https://codeclimate.com/github/ludodrapo/bilemo_api/maintainability)
+
 Project number 7 from the OpenClassRooms cursus on PHP/Symfony developpement.
 
 API Rest coded by Ludo Drapo with Symfony 5.3, PHP 7.4.20 and MySql 5.7
