@@ -6,7 +6,7 @@ Project number 7 from the OpenClassRooms cursus on PHP/Symfony developpement.
 
 API Rest coded by Ludo Drapo with Symfony 5.3, PHP 7.4.20 and MySql 5.7
 
-To "try it at home", you can download these files, or clone this repository.
+To "try it at home", you can download these files or clone this repository.
 
 You'll have to create a ".env.local" file with the access to your database server like this
 ```
@@ -35,11 +35,22 @@ JWT_PASSPHRASE=your_own_passphrase
 ###< lexik/jwt-authentication-bundle ###
 ```
 To test the API, choose a client email (for instance client2@gmail.com) and the password is ... "password" !
-So :
+
+So send in Postman (or any other tool):
+```
+POST https://your.local.server.address/api/login-check
+```
+With a json raw body containing:
+```
+{
+    "username": "client2@gmail.com",
+    "password": "password"
+}
 ```
 
+To access the html documentation (using swagger.ui), go to:
 ```
-
-To access the html documentation (using swagger.ui), go to "your-server-address/api/doc"
+https://your.local.server.address/api/doc
+```
 
 
