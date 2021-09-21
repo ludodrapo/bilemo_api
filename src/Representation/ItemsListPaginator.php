@@ -40,7 +40,7 @@ class ItemsListPaginator
         $allItems = $this->itemRepository->findAll();
 
         $nb_of_items = (int) count($allItems);
-        $nb_of_pages = (int) ceil($nb_of_items) / $limit;
+        $nb_of_pages = (int) ceil(($nb_of_items) / $limit);
 
         $itemsToDisplay = $this->itemRepository->findBy(
             [],
@@ -66,7 +66,7 @@ class ItemsListPaginator
         );
 
         // To test the cache
-        // sleep(2);
+        sleep(2);
 
         return $paginatedList;
     }

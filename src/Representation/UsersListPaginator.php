@@ -46,7 +46,7 @@ class UsersListPaginator
             ]
         );
         $nb_of_users = (int) count($allClientUsers);
-        $nb_of_pages = (int) ceil($nb_of_users) / $limit;
+        $nb_of_pages = (int) ceil(($nb_of_users) / $limit);
 
         $usersToDisplay = $this->userRepository->findBy(
             [
