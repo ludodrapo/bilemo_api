@@ -22,11 +22,11 @@ After that, to create the database and load the fixtures, just run
 ```
 % composer prepare
 ```
-Finaly, you will have to configure your lexik/jwt-authentication-bundle by first running
+You will then have to configure your lexik/jwt-authentication-bundle by first running
 ```
 % php bin/console lexik:jwt:generate-keypair
 ```
-And then moving the environment parameters in your .env.local file
+And then moving the environment parameters in your ".env.local" file
 ```
 ###> lexik/jwt-authentication-bundle ###
 JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
@@ -34,5 +34,12 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
 JWT_PASSPHRASE=your_own_passphrase
 ###< lexik/jwt-authentication-bundle ###
 ```
+To test the API, choose a client email (for instance client2@gmail.com) and the password is ... "password" !
+So :
+```
+
+```
 
 To access the html documentation (using swagger.ui), go to "your-server-address/api/doc"
+
+
