@@ -62,7 +62,7 @@ class User
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(
-     *     message="The user's email cannot be empty."
+     *     message="The user's email must not be empty."
      * )
      * @Assert\Email(
      *     message="The provided email address is not valid."

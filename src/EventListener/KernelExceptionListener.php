@@ -7,27 +7,45 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
+/**
+ * class KernelExceptionListener
+ * @package App\EventListener
+ */
 class KernelExceptionListener
 {
+    /**
+     * @param ExceptionEvent $event
+     * @return JsonResponse
+     */
     public function onKernelException(ExceptionEvent $event)
     {
         $exception = $event->getThrowable();
 
-        $message = sprintf(
-            'An error occured: ' . $exception->getMessage()
-        );
+        if ($exception->getCode()) {
+            $code = $exception->getCode();
+        } else {
+            $code = $exception->getStatusCode();
+        }
+
+        $message = [
+            'code' => $code,
+            'message' => $exception->getMessage()
+        ];
 
         $response = new JsonResponse($message);
 
         if ($exception instanceof HttpExceptionInterface) {
             if ($exception->getStatusCode() == 404) {
-                $notFoundMessage = 'The resource(s) you asked for do(es) not exist (at least not anymore).';
+                $notFoundMessage = [
+                    'code' => 404,
+                    'message' => 'The resource(s) you asked for do(es) not exist (at least not anymore).'
+                ];
                 $response = new JsonResponse($notFoundMessage);
             }
             $response->setStatusCode($exception->getStatusCode());
             $response->headers->replace($exception->getHeaders());
         } else {
-            $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            $response->setStatusCode($code);
         }
 
         $event->setResponse($response);

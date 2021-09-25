@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Exception\ForbiddenAccessException;
+use App\Exception\ResourceValidationException;
+use App\Manager\UserManager;
 use OpenApi\Annotations as OA;
 use App\Repository\UserRepository;
 use App\Repository\ClientRepository;
@@ -196,19 +199,11 @@ class UserController extends AbstractFOSRestController
      * )
      * @OA\Response(
      *     response=404,
-     *     description="Occurs when the user's id does not exist.",
-     *     @OA\MediaType(
-     *         mediaType="application/json",
-     *         example="The resource(s) you asked for do(es) not exist (at least not anymore)."
-     *     )
+     *     description="Occurs when the user's id does not exist."
      * )
      * @OA\Response(
      *     response=403,
-     *     description="Occurs when trying to access a user that is not associated with the current logged in client.",
-     *     @OA\JsonContent(
-     *         type="string",
-     *         example="You cannot access a user from another organization"
-     *     )
+     *     description="Occurs when trying to access a user that is not associated with the current logged in client."
      * )
      * @param User $user
      * @param TagAwareCacheInterface $cacheInterface
@@ -217,10 +212,7 @@ class UserController extends AbstractFOSRestController
     public function showAction(User $user, TagAwareCacheInterface $cacheInterface)
     {
         if ($user->getClient() !== $this->getUser()) {
-            return $this->view(
-                'You cannot access a user from another organization',
-                Response::HTTP_FORBIDDEN
-            );
+            throw new ForbiddenAccessException("You cannot access another organization's user's details", 403);
         }
 
         $userToDisplay = $cacheInterface->get(
@@ -272,30 +264,25 @@ class UserController extends AbstractFOSRestController
      */
     public function createAction(
         User $user,
-        EntityManagerInterface $em,
+        UserManager $um,
         ConstraintViolationList $violations,
         TagAwareCacheInterface $cacheInterface
     ) {
-
         if (count($violations)) {
-            $data = ['The sent JSON contains invalid data:'];
+            $message = 'The sent JSON contains invalid data:';
             foreach ($violations as $violation) {
-                $violationData = sprintf(
-                    "Field '%s': %s",
+                $message .= sprintf(
+                    " Field '%s': %s",
                     $violation->getPropertyPath(),
                     $violation->getMessage()
                 );
-                $data[] = $violationData;
             }
-            return $this->view($data, Response::HTTP_BAD_REQUEST);
+
+            throw new ResourceValidationException($message, 400);
         }
 
-        $em->persist(
-            $user
-                ->setClient($this->getUser())
-                ->setCreatedAt(new \DateTimeImmutable())
-        );
-        $em->flush();
+        $client = $this->getUser();
+        $um->recordUser($user, $client);
 
         //To clear users list cache when a new one is recorded
         $cacheInterface->invalidateTags(['users']);
@@ -329,10 +316,10 @@ class UserController extends AbstractFOSRestController
      * @OA\Response(
      *     response=403,
      *     description="Occurs when trying to delete a user that is not associated with the current logged in client.",
-     *     @OA\JsonContent(
-     *         type="string",
-     *         example="You cannot delete a user from another organization"
-     *     )
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="Occurs when trying to delete a user that does not exist.",
      * )
      * @param User $user
      * @param EntityManagerInterface $em
@@ -340,18 +327,14 @@ class UserController extends AbstractFOSRestController
      */
     public function deleteAction(
         User $user,
-        EntityManagerInterface $em,
+        UserManager $um,
         TagAwareCacheInterface $cacheInterface
     ) {
         if ($user->getClient() !== $this->getUser()) {
-            return $this->view(
-                'You cannot delete a user from another organization',
-                Response::HTTP_FORBIDDEN
-            );
+            throw new ForbiddenAccessException('You cannot delete a user from another organization', 403);
         }
-        $em->remove($user);
-        $em->flush();
 
+        $um->deleteUser($user);
         //To clear users list cache when a new one is deleted
         $cacheInterface->invalidateTags(['users']);
 
