@@ -180,11 +180,7 @@ class ItemController extends AbstractFOSRestController
      * )
      * @OA\Response(
      *     response="404",
-     *     description="Occurs when the item's id does not exist.",
-     *     @OA\MediaType(
-     *         mediaType="application/json",
-     *         example="The resource(s) you asked for do(es) not exist (at least not anymore)."
-     *     )
+     *     description="Occurs when the item's id does not exist."
      * )
      */
     public function showAction(Item $item, CacheInterface $cache)
