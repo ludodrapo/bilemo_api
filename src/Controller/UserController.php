@@ -198,7 +198,7 @@ class UserController extends AbstractFOSRestController
      *     response=404,
      *     description="Occurs when the user's id does not exist.",
      *     @OA\MediaType(
-     *         mediaType="text/html",
+     *         mediaType="application/json",
      *         example="The resource(s) you asked for do(es) not exist (at least not anymore)."
      *     )
      * )
@@ -281,7 +281,7 @@ class UserController extends AbstractFOSRestController
             $data = ['The sent JSON contains invalid data:'];
             foreach ($violations as $violation) {
                 $violationData = sprintf(
-                    "Field '%s': '%s'",
+                    "Field '%s': %s",
                     $violation->getPropertyPath(),
                     $violation->getMessage()
                 );

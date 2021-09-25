@@ -21,24 +21,6 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 class ItemController extends AbstractFOSRestController
 {
-    // /**
-    //  * @var ParamFetcherInterface
-    //  */
-    // private $paramFetcher;
-
-    // /**
-    //  * @var ItemsListPaginator
-    //  */
-    // private $paginator;
-
-    // public function __construct(
-    //     ParamFetcherInterface $paramFetcher,
-    //     ItemsListPaginator $paginator
-    // ) {
-    //     $this->paramFetcher = $paramFetcher;
-    //     $this->paginator = $paginator;
-    // }
-
     /**
      * @Rest\Get(name="api_items_list")
      * 
@@ -200,7 +182,7 @@ class ItemController extends AbstractFOSRestController
      *     response="404",
      *     description="Occurs when the item's id does not exist.",
      *     @OA\MediaType(
-     *         mediaType="text/html",
+     *         mediaType="application/json",
      *         example="The resource(s) you asked for do(es) not exist (at least not anymore)."
      *     )
      * )
