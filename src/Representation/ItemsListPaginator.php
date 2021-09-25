@@ -66,7 +66,7 @@ class ItemsListPaginator
         );
 
         // To test the cache
-        sleep(2);
+        // sleep(2);
 
         return $paginatedList;
     }
