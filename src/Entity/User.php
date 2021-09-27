@@ -86,14 +86,6 @@ class User
     private $client;
 
     /**
-     * User constructor.
-     */
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-    }
-
-    /**
      * @return integer|null
      */
     public function getId(): ?int
