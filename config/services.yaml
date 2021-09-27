@@ -25,5 +25,12 @@ services:
         tags: 
             - { name: kernel.event_listener, event: kernel.exception }
 
+    app.normalizer.resource_validation_exception:
+        class: App\Normalizer\NotFoundHttpExceptionNormalizer
+        arguments:
+            - { type: 'symfony\Component\HttpKernel\Exception\NotFoundHttpException' }
+        tags:
+            - { name: app.normalizer }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

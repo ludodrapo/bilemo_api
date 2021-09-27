@@ -22,8 +22,10 @@ class KernelExceptionListener
         $exception = $event->getThrowable();
 
         if ($exception->getCode()) {
+            //If exception is thrown manually from the controller
             $code = $exception->getCode();
         } else {
+            //If the exception is thrown by the system
             $code = $exception->getStatusCode();
         }
 
@@ -33,20 +35,8 @@ class KernelExceptionListener
         ];
 
         $response = new JsonResponse($message);
-
-        if ($exception instanceof HttpExceptionInterface) {
-            if ($exception->getStatusCode() == 404) {
-                $notFoundMessage = [
-                    'code' => 404,
-                    'message' => 'The resource(s) you asked for do(es) not exist (at least not anymore).'
-                ];
-                $response = new JsonResponse($notFoundMessage);
-            }
-            $response->setStatusCode($exception->getStatusCode());
-            $response->headers->replace($exception->getHeaders());
-        } else {
-            $response->setStatusCode($code);
-        }
+        
+        $response->setStatusCode($code);
 
         $event->setResponse($response);
     }
